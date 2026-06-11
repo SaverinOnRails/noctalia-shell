@@ -160,7 +160,8 @@ namespace {
 
   [[nodiscard]] bool writeManifest(
       const std::filesystem::path& staging, const Config& config, std::string_view resolvedMode,
-      const std::string& wallpaperPath, const std::string& installedWallpaperName
+      const std::string& wallpaperPath, const std::string& installedWallpaperName,
+      const std::string& installedAvatarName
   ) {
     nlohmann::json root;
     root["version"] = 1;
@@ -197,6 +198,9 @@ namespace {
       wallpaper["fill_color"] = formatRgbHex(fillColor);
     }
     root["wallpaper"] = std::move(wallpaper);
+    if (!installedAvatarName.empty()) {
+      root["avatarPath"] = (std::filesystem::path("/var/lib/noctalia-greeter") / installedAvatarName).string();
+    }
 
     const auto manifestPath = staging / "appearance.json";
     std::ofstream out(manifestPath);
@@ -228,6 +232,24 @@ namespace {
     std::filesystem::copy_file(source, destination, std::filesystem::copy_options::overwrite_existing, ec);
     if (ec) {
       kLog.warn("failed to stage wallpaper '{}': {}", source.string(), ec.message());
+      return {};
+    }
+    return installedName;
+  }
+  [[nodiscard]] std::string stageAvatar(const std::filesystem::path& staging, const ConfigService& configService) {
+    const auto avatarPath = configService.config().shell.avatarPath;
+    const std::filesystem::path source(avatarPath);
+    std::error_code ec;
+    if (!std::filesystem::is_regular_file(source, ec))
+      return {};
+
+    const std::string extension = source.extension().string();
+    const std::string installedName = extension.empty() ? "avatar" : "avatar" + extension;
+    const auto destination = staging / installedName;
+
+    std::filesystem::copy_file(source, destination, std::filesystem::copy_options::overwrite_existing, ec);
+    if (ec) {
+      kLog.warn("failed to stage avatar '{}': {}", source.string(), ec.message());
       return {};
     }
     return installedName;
@@ -275,7 +297,10 @@ namespace greeter {
     const Config& config = configService.config();
     const std::string wallpaperPath = resolveSyncWallpaperPath(configService);
     const std::string installedWallpaperName = stageWallpaper(staging, wallpaperPath);
-    if (!writeManifest(staging, config, resolvedThemeMode, wallpaperPath, installedWallpaperName)) {
+    const std::string installedAvatarName = stageAvatar(staging, configService);
+    if (!writeManifest(
+            staging, config, resolvedThemeMode, wallpaperPath, installedWallpaperName, installedAvatarName
+        )) {
       finish(false);
       return false;
     }
