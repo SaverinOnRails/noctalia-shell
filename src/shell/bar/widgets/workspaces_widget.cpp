@@ -21,6 +21,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstdint>
+
 #include <linux/input-event-codes.h>
 #include <optional>
 #include <utility>
@@ -78,8 +79,8 @@ WorkspacesWidget::WorkspacesWidget(
       m_activePillSize(std::clamp(options.activePillSize, 0.25f, 8.0f)),
       m_inactivePillSize(std::clamp(options.inactivePillSize, 0.25f, 8.0f)), m_minimal(options.minimal),
       m_focusedPill(options.focusedPill), m_focusedOutputOnly(options.focusedOutputOnly),
-      m_enableScroll(options.enableScroll), m_focusedColor(options.focusedColor),
-      m_occupiedColor(options.occupiedColor), m_emptyColor(options.emptyColor), m_urgentColor(options.urgentColor) {
+      m_enableScroll(options.enableScroll), m_useCustomWorkspaceIds(options.useCustomWorkspaceIds),
+      m_workspaceIdMap(options.workspaceIdMap), m_focusedColor(options.focusedColor), m_occupiedColor(options.occupiedColor) , m_emptyColor(options.emptyColor) , m_urgentColor(options.urgentColor) {
   buildDesktopIconIndex();
 }
 
@@ -1418,6 +1419,10 @@ std::string WorkspacesWidget::workspaceLabel(const Workspace& workspace, std::si
   const DisplayMode displayMode = effectiveDisplayMode();
   std::string label;
   if (displayMode == DisplayMode::Id) {
+    if(m_useCustomWorkspaceIds && m_workspaceIdMap.contains(static_cast<int>(workspace.index))){
+      return m_workspaceIdMap.at(static_cast<int>(workspace.index));
+    }
+    
     if (workspace.index > 0) {
       label = std::to_string(workspace.index);
     } else if (const auto numericId = numericWorkspaceId(workspace); numericId.has_value()) {

@@ -44,6 +44,8 @@ public:
     bool focusedPill = false;
     bool focusedOutputOnly = false;
     bool enableScroll = true;
+    bool useCustomWorkspaceIds = false;
+    std::unordered_map<int, std::string> workspaceIdMap;
   };
 
   WorkspacesWidget(CompositorPlatform& platform, ConfigService& config, wl_output* output, Options options);
@@ -157,6 +159,8 @@ private:
   bool m_enableScroll = true;
   bool m_wasFocusedOutput = true;
   bool m_activeUsesFocusedColor = true;
+  bool m_useCustomWorkspaceIds = false;
+  std::unordered_map<int, std::string> m_workspaceIdMap;
   std::string m_cachedActiveWindowAppId;
   IconResolver m_iconResolver;
   std::unordered_map<std::string, std::string> m_appIcons;

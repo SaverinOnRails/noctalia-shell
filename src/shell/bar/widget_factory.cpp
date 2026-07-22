@@ -13,6 +13,8 @@
 #include "shell/bar/widgets/clock_widget.h"
 #include "shell/bar/widgets/control_center_widget.h"
 #include "shell/bar/widgets/custom_button_widget.h"
+
+#include <iostream>
 #ifndef NDEBUG
 #include "shell/bar/widgets/debug_indicator_widget.h"
 #endif
@@ -690,7 +692,21 @@ std::unique_ptr<Widget> WidgetFactory::create(
     const ColorSpec urgentColor = wc != nullptr
         ? wc->getColorSpec("urgent_color", colorSpecFromRole(ColorRole::Error), "widget." + name + ".urgent_color")
         : colorSpecFromRole(ColorRole::Error);
+    const bool useCustomWorkspaceIDs = wc != nullptr ? wc->getBool("use_custom_workspace_ids") : false;
     WorkspacesWidget::DisplayMode displayMode = WorkspacesWidget::DisplayMode::Id;
+
+    std::unordered_map<int, std::string> workspaceLabelMap{};
+    for (int i = 1; i <= 10; i++) {
+      auto id = std::format("workspace_{}_id", i);
+      if (wc == nullptr)
+        break;
+      if (wc->hasSetting(id)) {
+        workspaceLabelMap[i] = wc->getString(id);
+      }
+    }
+    auto workspace2id = wc != nullptr ? wc->getString("workspace_2_id") : "2";
+    std::cout << workspace2id << std::endl;
+
     if (display == "id") {
       displayMode = WorkspacesWidget::DisplayMode::Id;
     } else if (display == "name") {
@@ -719,6 +735,8 @@ std::unique_ptr<Widget> WidgetFactory::create(
         .focusedPill = workspaceStyle == "focus_hint",
         .focusedOutputOnly = wc != nullptr ? wc->getBool("focused_output_only", false) : false,
         .enableScroll = wc != nullptr ? wc->getBool("enable_scroll", true) : true,
+        .useCustomWorkspaceIds = useCustomWorkspaceIDs,
+        .workspaceIdMap= std::move(workspaceLabelMap)
     };
     auto widget = std::make_unique<WorkspacesWidget>(m_platform, m_configService, output, options);
     widget->setContentScale(contentScale);
