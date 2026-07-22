@@ -693,7 +693,6 @@ std::unique_ptr<Widget> WidgetFactory::create(
         : colorSpecFromRole(ColorRole::Error);
     const bool useCustomWorkspaceIDs = wc != nullptr ? wc->getBool("use_custom_workspace_ids") : false;
     WorkspacesWidget::DisplayMode displayMode = WorkspacesWidget::DisplayMode::Id;
-
     std::unordered_map<int, std::string> workspaceLabelMap{};
     for (int i = 1; i <= 10; i++) {
       auto id = std::format("workspace_{}_id", i);
@@ -703,7 +702,6 @@ std::unique_ptr<Widget> WidgetFactory::create(
         workspaceLabelMap[i] = wc->getString(id);
       }
     }
-
     if (display == "id") {
       displayMode = WorkspacesWidget::DisplayMode::Id;
     } else if (display == "name") {
