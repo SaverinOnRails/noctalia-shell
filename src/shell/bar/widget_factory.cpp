@@ -14,7 +14,6 @@
 #include "shell/bar/widgets/control_center_widget.h"
 #include "shell/bar/widgets/custom_button_widget.h"
 
-#include <iostream>
 #ifndef NDEBUG
 #include "shell/bar/widgets/debug_indicator_widget.h"
 #endif
@@ -704,8 +703,6 @@ std::unique_ptr<Widget> WidgetFactory::create(
         workspaceLabelMap[i] = wc->getString(id);
       }
     }
-    auto workspace2id = wc != nullptr ? wc->getString("workspace_2_id") : "2";
-    std::cout << workspace2id << std::endl;
 
     if (display == "id") {
       displayMode = WorkspacesWidget::DisplayMode::Id;
@@ -736,7 +733,7 @@ std::unique_ptr<Widget> WidgetFactory::create(
         .focusedOutputOnly = wc != nullptr ? wc->getBool("focused_output_only", false) : false,
         .enableScroll = wc != nullptr ? wc->getBool("enable_scroll", true) : true,
         .useCustomWorkspaceIds = useCustomWorkspaceIDs,
-        .workspaceIdMap= std::move(workspaceLabelMap)
+        .workspaceIdMap = std::move(workspaceLabelMap)
     };
     auto widget = std::make_unique<WorkspacesWidget>(m_platform, m_configService, output, options);
     widget->setContentScale(contentScale);
