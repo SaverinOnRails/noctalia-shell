@@ -21,6 +21,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstdint>
+#include <iostream>
 #include <linux/input-event-codes.h>
 #include <optional>
 #include <utility>
@@ -1426,7 +1427,11 @@ std::string WorkspacesWidget::workspaceLabel(const Workspace& workspace, std::si
     if (workspace.index > 0) {
       label = std::to_string(workspace.index);
     } else if (const auto numericId = numericWorkspaceId(workspace); numericId.has_value()) {
-      label = std::to_string(*numericId);
+      if (m_useCustomWorkspaceIds && m_workspaceIdMap.contains(static_cast<int>(*numericId))) {
+        label = m_workspaceIdMap.at(static_cast<int>(*numericId));
+      } else {
+        label = std::to_string(*numericId);
+      }
     } else {
       label = std::to_string(displayIndex + 1);
     }
