@@ -3307,6 +3307,11 @@
           "label": "Labels Only When Occupied",
           "workspaces-description": "Show workspace ID or name labels on workspaces with open windows and on the active workspace even when it is empty; other empty tags stay unlabeled"
         },
+        "use-custom-workspace-ids":{
+          "description": "Use Custom workspace IDs",
+          "label": "Custom Workspace IDs",
+          "workspaces-description": "Set a custom ID for each numerical workspace to be displayed on the widget"
+        },
         "length": {
           "description": "Spacer length in pixels",
           "label": "Length"

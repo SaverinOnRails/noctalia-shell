@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <format>
 #include <iterator>
 #include <string>
 #include <unordered_set>
@@ -1092,6 +1093,27 @@ namespace settings {
         labelsOnlyWhenOccupied.descriptionKey =
             "settings.widgets.settings.labels-only-when-occupied.workspaces-description";
         add(std::move(labelsOnlyWhenOccupied));
+      }
+      {
+        auto useCustomWorkspaceIds = withGroup(boolSpec("use_custom_workspace_ids", false), "workspaces.list");
+        useCustomWorkspaceIds.descriptionKey =
+            "settings.widgets.settings.use-custom-workspace-ids.workspaces-description";
+        add(std::move(useCustomWorkspaceIds));
+      }
+      {
+        WidgetSettingVisibility workspaceIdVisibility;
+        workspaceIdVisibility.all = {
+            WidgetSettingVisibilityCondition{"use_custom_workspace_ids", {"true"}},
+        };
+
+        for (int i = 1; i <= 10; i++) {
+          auto spec = stringSpec(std::format("workspace_{}_id", i), std::to_string(i));
+          spec.literalLabel = std::format("Workspace {} ID", i);
+          auto workspace_id = withGroup(std::move(spec), "workspaces.list");
+          workspace_id.literalDescription = std::format("Display ID for workspace {}", i);
+          workspace_id.visibleWhen = workspaceIdVisibility;
+          add(std::move(workspace_id));
+        }
       }
       {
         auto maxLabelChars = withGroup(intSpec("max_label_chars", 1, 1.0, 20.0, 1.0), "workspaces.list");
